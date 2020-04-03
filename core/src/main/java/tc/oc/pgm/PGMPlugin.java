@@ -56,7 +56,6 @@ import tc.oc.pgm.commands.ModeCommands;
 import tc.oc.pgm.commands.ObserverCommands;
 import tc.oc.pgm.commands.SettingCommands;
 import tc.oc.pgm.commands.StartCommands;
-import tc.oc.pgm.commands.StatsCommands;
 import tc.oc.pgm.commands.TeamCommands;
 import tc.oc.pgm.commands.TimeLimitCommands;
 import tc.oc.pgm.commands.provider.AudienceProvider;
@@ -322,7 +321,6 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
     node.registerCommands(new SettingCommands());
     node.registerCommands(new ObserverCommands());
     node.registerCommands(new MapPoolCommands());
-    node.registerCommands(new StatsCommands());
 
     // TODO: Community commands
     final ModerationCommands modCommands = new ModerationCommands(chat, getMatchManager());
