@@ -9,8 +9,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import tc.oc.pgm.Config.Prefixes;
 import tc.oc.pgm.api.PGM;
+import tc.oc.pgm.api.event.PrefixChangeEvent;
 import tc.oc.pgm.api.party.Party;
 import tc.oc.pgm.api.player.MatchPlayer;
+import tc.oc.pgm.api.prefix.PrefixProvider;
+import tc.oc.pgm.api.prefix.PrefixRegistry;
+import tc.oc.pgm.tablist.MatchTabManager;
 import tc.oc.util.bukkit.identity.Identities;
 import tc.oc.util.bukkit.named.Names;
 import tc.oc.util.bukkit.tablist.PlayerTabEntry;
@@ -36,11 +40,13 @@ public class PrefixRegistryImpl implements PrefixRegistry, Listener {
     }
     player.setDisplayName(getPrefixedName(player, matchPlayer.getParty()));
     Names.renderer().invalidateCache(Identities.current(player));
-    final PlayerTabEntry tabEntry =
-        (PlayerTabEntry) PGM.get().getMatchTabManager().getPlayerEntryOrNull(player);
-    if (tabEntry != null) {
-      tabEntry.invalidate();
-      tabEntry.refresh();
+    final MatchTabManager tabManager = PGM.get().getMatchTabManager();
+    if (tabManager != null) {
+      final PlayerTabEntry tabEntry = (PlayerTabEntry) tabManager.getPlayerEntryOrNull(player);
+      if (tabEntry != null) {
+        tabEntry.invalidate();
+        tabEntry.refresh();
+      }
     }
   }
 

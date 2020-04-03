@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,8 +23,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import tc.oc.pgm.api.PGM;
-import tc.oc.pgm.api.chat.Audience;
-import tc.oc.pgm.api.chat.MultiAudience;
+import tc.oc.pgm.api.filter.query.PlayerQuery;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.match.MatchScope;
 import tc.oc.pgm.api.party.Competitor;
@@ -38,12 +36,11 @@ import tc.oc.pgm.api.setting.SettingValue;
 import tc.oc.pgm.api.setting.Settings;
 import tc.oc.pgm.api.time.Tick;
 import tc.oc.pgm.events.PlayerResetEvent;
-import tc.oc.pgm.filters.query.IPlayerQuery;
-import tc.oc.pgm.filters.query.PlayerQuery;
 import tc.oc.pgm.kits.Kit;
 import tc.oc.pgm.kits.WalkSpeedKit;
 import tc.oc.util.ClassLogger;
 import tc.oc.util.bukkit.ViaUtils;
+import tc.oc.util.bukkit.chat.PlayerAudience;
 import tc.oc.util.bukkit.component.Component;
 import tc.oc.util.bukkit.component.types.PersonalizedPlayer;
 import tc.oc.util.bukkit.identity.Identities;
@@ -51,7 +48,7 @@ import tc.oc.util.bukkit.named.NameStyle;
 import tc.oc.util.bukkit.nms.DeathOverride;
 import tc.oc.util.bukkit.nms.NMSHacks;
 
-public class MatchPlayerImpl implements MatchPlayer, MultiAudience, Comparable<MatchPlayer> {
+public class MatchPlayerImpl implements MatchPlayer, PlayerAudience, Comparable<MatchPlayer> {
 
   // TODO: Probably should be moved to a better location
   private static final int FROZEN_VEHICLE_ENTITY_ID = NMSHacks.allocateEntityId();
@@ -60,7 +57,7 @@ public class MatchPlayerImpl implements MatchPlayer, MultiAudience, Comparable<M
   private final UUID id;
   private final WeakReference<Player> bukkit;
   private final AtomicReference<Party> party;
-  private final AtomicReference<IPlayerQuery> query;
+  private final AtomicReference<PlayerQuery> query;
   private final AtomicBoolean frozen;
   private final AtomicBoolean dead;
   private final AtomicBoolean visible;
@@ -130,7 +127,7 @@ public class MatchPlayerImpl implements MatchPlayer, MultiAudience, Comparable<M
   }
 
   @Override
-  public IPlayerQuery getQuery() {
+  public PlayerQuery getQuery() {
     return query.get();
   }
 
@@ -352,7 +349,7 @@ public class MatchPlayerImpl implements MatchPlayer, MultiAudience, Comparable<M
   @Override
   public void internalSetParty(Party newParty) {
     if (party.compareAndSet(getParty(), newParty)) {
-      query.set(new PlayerQuery(null, this));
+      query.set(new tc.oc.pgm.filters.query.PlayerQuery(null, this));
     }
   }
 
@@ -393,12 +390,8 @@ public class MatchPlayerImpl implements MatchPlayer, MultiAudience, Comparable<M
   }
 
   @Override
-  public Iterable<? extends Audience> getAudiences() {
-    final Player player = getBukkit();
-    if (player == null) {
-      return Collections.emptyList();
-    }
-    return Collections.singleton(Audience.get(player));
+  public Player getAudience() {
+    return getBukkit();
   }
 
   @Override

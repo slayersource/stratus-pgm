@@ -10,7 +10,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
 import org.joda.time.Duration;
-import tc.oc.pgm.api.chat.MultiAudience;
 import tc.oc.pgm.api.map.MapInfo;
 import tc.oc.pgm.api.match.event.MatchFinishEvent;
 import tc.oc.pgm.api.match.event.MatchLoadEvent;
@@ -21,14 +20,15 @@ import tc.oc.pgm.api.module.ModuleContext;
 import tc.oc.pgm.api.module.exception.ModuleLoadException;
 import tc.oc.pgm.api.party.Competitor;
 import tc.oc.pgm.api.party.Party;
+import tc.oc.pgm.api.party.VictoryCondition;
 import tc.oc.pgm.api.player.MatchPlayer;
 import tc.oc.pgm.api.player.MatchPlayerResolver;
 import tc.oc.pgm.api.time.Tick;
 import tc.oc.pgm.countdowns.CountdownContext;
 import tc.oc.pgm.features.MatchFeatureContext;
 import tc.oc.pgm.filters.query.Query;
-import tc.oc.pgm.result.VictoryCondition;
 import tc.oc.util.bukkit.Scheduler;
+import tc.oc.util.bukkit.chat.MultiAudience;
 
 /**
  * A PvP game that takes place in a {@link World} loaded with a {@link MapInfo}.

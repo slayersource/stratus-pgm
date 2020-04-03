@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.bukkit.Difficulty;
+import org.bukkit.command.CommandSender;
 import org.jdom2.Element;
 import tc.oc.pgm.api.map.Contributor;
 import tc.oc.pgm.api.map.MapInfo;
@@ -19,9 +20,7 @@ import tc.oc.pgm.api.map.MapTag;
 import tc.oc.pgm.api.map.WorldInfo;
 import tc.oc.pgm.map.contrib.PlayerContributor;
 import tc.oc.pgm.map.contrib.PseudonymContributor;
-import tc.oc.pgm.util.XMLUtils;
 import tc.oc.util.Version;
-import tc.oc.util.bukkit.chat.NullCommandSender;
 import tc.oc.util.bukkit.component.Component;
 import tc.oc.util.bukkit.component.types.PersonalizedText;
 import tc.oc.util.bukkit.component.types.PersonalizedTranslatable;
@@ -29,6 +28,7 @@ import tc.oc.util.bukkit.named.MapNameStyle;
 import tc.oc.util.bukkit.translations.TranslationUtils;
 import tc.oc.util.xml.InvalidXMLException;
 import tc.oc.util.xml.Node;
+import tc.oc.util.xml.XMLUtils;
 
 public class MapInfoImpl implements MapInfo {
   private final String id;
@@ -191,13 +191,13 @@ public class MapInfoImpl implements MapInfo {
   }
 
   @Override
-  public Component getStyledMapName(MapNameStyle style) {
-    Component styledName = null;
+  public Component getStyledMapName(MapNameStyle style, @Nullable CommandSender viewer) {
+    Component styledName;
     Component mapName = new PersonalizedText(getName());
     Component authors =
         new PersonalizedText(
             TranslationUtils.legacyList(
-                NullCommandSender.INSTANCE,
+                viewer,
                 (input) -> ChatColor.DARK_PURPLE + input,
                 (input) -> ChatColor.RED + input,
                 getAuthors().stream().map(Contributor::getName).collect(Collectors.toList())));

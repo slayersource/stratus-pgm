@@ -29,15 +29,16 @@ import tc.oc.pgm.api.Datastore;
 import tc.oc.pgm.api.Modules;
 import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.Permissions;
-import tc.oc.pgm.api.chat.Audience;
 import tc.oc.pgm.api.map.MapInfo;
 import tc.oc.pgm.api.map.MapLibrary;
+import tc.oc.pgm.api.map.MapOrder;
 import tc.oc.pgm.api.map.exception.MapException;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.match.MatchManager;
 import tc.oc.pgm.api.module.Module;
 import tc.oc.pgm.api.module.exception.ModuleLoadException;
 import tc.oc.pgm.api.player.MatchPlayer;
+import tc.oc.pgm.api.prefix.PrefixRegistry;
 import tc.oc.pgm.api.setting.SettingKey;
 import tc.oc.pgm.api.setting.SettingValue;
 import tc.oc.pgm.commands.AdminCommands;
@@ -55,6 +56,7 @@ import tc.oc.pgm.commands.ModeCommands;
 import tc.oc.pgm.commands.ObserverCommands;
 import tc.oc.pgm.commands.SettingCommands;
 import tc.oc.pgm.commands.StartCommands;
+import tc.oc.pgm.commands.StatsCommands;
 import tc.oc.pgm.commands.TeamCommands;
 import tc.oc.pgm.commands.TimeLimitCommands;
 import tc.oc.pgm.commands.provider.AudienceProvider;
@@ -85,16 +87,15 @@ import tc.oc.pgm.listeners.WorldProblemListener;
 import tc.oc.pgm.map.MapLibraryImpl;
 import tc.oc.pgm.match.MatchManagerImpl;
 import tc.oc.pgm.match.MatchNameRenderer;
-import tc.oc.pgm.prefix.PrefixRegistry;
 import tc.oc.pgm.prefix.PrefixRegistryImpl;
 import tc.oc.pgm.restart.RestartListener;
 import tc.oc.pgm.restart.ShouldRestartTask;
-import tc.oc.pgm.rotation.MapOrder;
 import tc.oc.pgm.rotation.MapPoolManager;
 import tc.oc.pgm.rotation.RandomMapOrder;
 import tc.oc.pgm.tablist.MatchTabManager;
 import tc.oc.pgm.teams.TeamMatchModule;
 import tc.oc.util.FileUtils;
+import tc.oc.util.bukkit.chat.Audience;
 import tc.oc.util.bukkit.named.Names;
 import tc.oc.util.xml.InvalidXMLException;
 
@@ -282,9 +283,10 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
     }
 
     private void configureProviders() {
-      bind(Audience.class).toProvider(new AudienceProvider());
+      final MatchPlayerProvider playerProvider = new MatchPlayerProvider(getMatchManager());
+      bind(MatchPlayer.class).toProvider(playerProvider);
+      bind(Audience.class).toProvider(new AudienceProvider(playerProvider));
       bind(Match.class).toProvider(new MatchProvider(getMatchManager()));
-      bind(MatchPlayer.class).toProvider(new MatchPlayerProvider(getMatchManager()));
       bind(MapInfo.class)
           .toProvider(new MapInfoProvider(getMatchManager(), getMapLibrary(), getMapOrder()));
       bind(Duration.class).toProvider(new DurationProvider());
@@ -320,9 +322,13 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
     node.registerCommands(new SettingCommands());
     node.registerCommands(new ObserverCommands());
     node.registerCommands(new MapPoolCommands());
+    node.registerCommands(new StatsCommands());
 
     // TODO: Community commands
-    node.registerCommands(new ModerationCommands(chat));
+    final ModerationCommands modCommands = new ModerationCommands(chat, getMatchManager());
+    node.registerCommands(modCommands);
+    registerEvents(modCommands);
+
     node.registerCommands(new ReportCommands());
 
     new BukkitIntake(this, graph).register();

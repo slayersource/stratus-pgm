@@ -21,6 +21,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -32,7 +33,6 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.material.MaterialData;
 import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.Permissions;
-import tc.oc.pgm.api.chat.Sound;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.match.MatchModule;
 import tc.oc.pgm.api.match.MatchScope;
@@ -41,6 +41,7 @@ import tc.oc.pgm.api.match.event.MatchStartEvent;
 import tc.oc.pgm.api.match.factory.MatchModuleFactory;
 import tc.oc.pgm.api.module.exception.ModuleLoadException;
 import tc.oc.pgm.api.player.MatchPlayer;
+import tc.oc.pgm.api.player.event.ObserverInteractEvent;
 import tc.oc.pgm.api.setting.SettingKey;
 import tc.oc.pgm.blitz.BlitzMatchModule;
 import tc.oc.pgm.classes.ClassMatchModule;
@@ -56,6 +57,7 @@ import tc.oc.pgm.spawns.events.ObserverKitApplyEvent;
 import tc.oc.pgm.teams.Team;
 import tc.oc.pgm.teams.TeamMatchModule;
 import tc.oc.util.StringUtils;
+import tc.oc.util.bukkit.chat.Sound;
 import tc.oc.util.bukkit.component.ComponentUtils;
 import tc.oc.util.bukkit.item.Items;
 import tc.oc.util.bukkit.translations.AllTranslations;
@@ -305,6 +307,15 @@ public class PickerMatchModule implements MatchModule, Listener {
                   }
                 }
               });
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void cancelArmorEquip(ObserverInteractEvent event) {
+    if (event.getClickType() == ClickType.RIGHT
+        && event.getClickedItem().getType() == Button.TEAM_JOIN.material) {
+      event.setCancelled(true);
+      event.getPlayer().getBukkit().updateInventory();
     }
   }
 

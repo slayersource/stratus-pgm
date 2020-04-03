@@ -31,6 +31,7 @@ import org.bukkit.plugin.Plugin;
 import tc.oc.pgm.Config;
 import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.Permissions;
+import tc.oc.pgm.api.event.BlockTransformEvent;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.match.MatchManager;
 import tc.oc.pgm.api.match.MatchScope;
@@ -48,7 +49,6 @@ import tc.oc.pgm.events.PlayerPartyChangeEvent;
 import tc.oc.pgm.gamerules.GameRule;
 import tc.oc.pgm.gamerules.GameRulesMatchModule;
 import tc.oc.pgm.modules.TimeLockModule;
-import tc.oc.util.bukkit.chat.NullCommandSender;
 import tc.oc.util.bukkit.component.Component;
 import tc.oc.util.bukkit.component.types.PersonalizedText;
 import tc.oc.util.bukkit.component.types.PersonalizedTranslatable;
@@ -101,8 +101,7 @@ public class PGMListener implements Listener {
     if (!mm.getMatches().hasNext()) {
       event.disallow(
           AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
-          AllTranslations.get()
-              .translate("incorrectWorld.kickMessage", NullCommandSender.INSTANCE));
+          AllTranslations.get().translate("incorrectWorld.kickMessage", null));
     }
   }
 
@@ -294,6 +293,14 @@ public class PGMListener implements Listener {
         .getMatch()
         .getWorld()
         .setGameRuleValue(GameRule.DO_DAYLIGHT_CYCLE.getValue(), Boolean.toString(false));
+  }
+
+  @EventHandler
+  public void freezeWorld(final BlockTransformEvent event) {
+    Match match = this.mm.getMatch(event.getWorld());
+    if (match != null && match.isFinished()) {
+      event.setCancelled(true);
+    }
   }
 
   @EventHandler

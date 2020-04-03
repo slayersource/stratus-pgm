@@ -9,23 +9,26 @@ import java.util.AbstractMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import net.kyori.text.TranslatableComponent;
+import net.kyori.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.joda.time.Duration;
 import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.Permissions;
 import tc.oc.pgm.api.map.MapInfo;
+import tc.oc.pgm.api.map.MapOrder;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.match.MatchManager;
 import tc.oc.pgm.api.party.Competitor;
 import tc.oc.pgm.restart.CancelRestartEvent;
 import tc.oc.pgm.restart.RequestRestartEvent;
 import tc.oc.pgm.restart.RestartManager;
-import tc.oc.pgm.rotation.MapOrder;
 import tc.oc.pgm.start.StartMatchModule;
 import tc.oc.pgm.timelimit.TimeLimitCountdown;
 import tc.oc.pgm.timelimit.TimeLimitMatchModule;
 import tc.oc.util.StringUtils;
+import tc.oc.util.bukkit.chat.Audience;
 import tc.oc.util.bukkit.translations.AllTranslations;
 
 public class AdminCommands {
@@ -142,10 +145,9 @@ public class AdminCommands {
       aliases = {"pgm"},
       desc = "Reload the PGM configuration",
       perms = Permissions.RELOAD)
-  public void pgm(CommandSender sender) {
+  public void pgm(Audience audience) {
     PGM.get().reloadConfig();
-    sender.sendMessage(
-        ChatColor.GREEN + AllTranslations.get().translate("command.admin.pgm", sender));
+    audience.sendMessage(TranslatableComponent.of("admin.reload", TextColor.GREEN));
   }
 
   private static Map<String, Competitor> getCompetitorMap(CommandSender sender, Match match) {

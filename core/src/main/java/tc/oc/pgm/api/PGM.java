@@ -4,11 +4,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import org.bukkit.plugin.Plugin;
 import tc.oc.pgm.api.map.MapLibrary;
+import tc.oc.pgm.api.map.MapOrder;
 import tc.oc.pgm.api.match.MatchManager;
-import tc.oc.pgm.prefix.PrefixRegistry;
-import tc.oc.pgm.rotation.MapOrder;
+import tc.oc.pgm.api.prefix.PrefixRegistry;
 import tc.oc.pgm.tablist.MatchTabManager;
 
 /** PvP Game Manager (aka. PGM), the global {@link Plugin} to manage PvP games. */
@@ -20,6 +21,7 @@ public interface PGM extends Plugin {
 
   MatchManager getMatchManager();
 
+  @Nullable
   MatchTabManager getMatchTabManager();
 
   MapLibrary getMapLibrary();

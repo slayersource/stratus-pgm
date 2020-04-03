@@ -22,14 +22,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import tc.oc.pgm.api.Permissions;
-import tc.oc.pgm.api.chat.Audience;
-import tc.oc.pgm.api.chat.Sound;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.player.MatchPlayer;
 import tc.oc.pgm.api.setting.SettingKey;
 import tc.oc.pgm.api.setting.SettingValue;
 import tc.oc.pgm.events.PlayerReportEvent;
+import tc.oc.pgm.listeners.ChatDispatcher;
 import tc.oc.pgm.util.PrettyPaginatedComponentResults;
+import tc.oc.util.bukkit.chat.Audience;
+import tc.oc.util.bukkit.chat.Sound;
 import tc.oc.util.bukkit.component.Component;
 import tc.oc.util.bukkit.component.ComponentRenderers;
 import tc.oc.util.bukkit.component.ComponentUtils;
@@ -127,9 +128,7 @@ public class ReportCommands {
 
     final Component prefixedComponent =
         new PersonalizedText(
-            new PersonalizedText("["),
-            new PersonalizedText("A", ChatColor.GOLD),
-            new PersonalizedText("] "),
+            new PersonalizedText(ChatDispatcher.ADMIN_CHAT_PREFIX),
             new PersonalizedText(component, ChatColor.YELLOW));
 
     match.getPlayers().stream()
@@ -137,7 +136,10 @@ public class ReportCommands {
         .forEach(
             viewer -> {
               // Play sound for viewers of reports
-              if (viewer.getSettings().getValue(SettingKey.SOUNDS).equals(SettingValue.SOUNDS_ON)) {
+              if (viewer
+                  .getSettings()
+                  .getValue(SettingKey.SOUNDS)
+                  .equals(SettingValue.SOUNDS_ALL)) {
                 viewer.playSound(REPORT_NOTIFY_SOUND);
               }
               viewer.sendMessage(prefixedComponent);

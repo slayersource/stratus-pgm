@@ -12,7 +12,6 @@ import tc.oc.pgm.api.player.MatchPlayer;
 import tc.oc.pgm.spawns.Spawn;
 import tc.oc.pgm.spawns.SpawnMatchModule;
 import tc.oc.util.bukkit.component.Component;
-import tc.oc.util.bukkit.component.types.PersonalizedText;
 import tc.oc.util.bukkit.component.types.PersonalizedTranslatable;
 
 /** Player is waiting to spawn as a participant */
@@ -97,7 +96,7 @@ public abstract class Spawning extends Participating {
   }
 
   public void updateTitle() {
-    player.showTitle(getTitle(), new PersonalizedText(getSubtitle(), ChatColor.GREEN), 0, 3, 3);
+    player.showTitle(getTitle(), getSubtitle().color(ChatColor.GREEN), 0, 3, 3);
   }
 
   protected abstract Component getTitle();
