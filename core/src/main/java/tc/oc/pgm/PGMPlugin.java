@@ -66,8 +66,6 @@ import tc.oc.pgm.commands.provider.MatchProvider;
 import tc.oc.pgm.commands.provider.SettingKeyProvider;
 import tc.oc.pgm.commands.provider.TeamMatchModuleProvider;
 import tc.oc.pgm.commands.provider.VectorProvider;
-import tc.oc.pgm.community.commands.ModerationCommands;
-import tc.oc.pgm.community.commands.ReportCommands;
 import tc.oc.pgm.db.DatastoreCacheImpl;
 import tc.oc.pgm.db.DatastoreImpl;
 import tc.oc.pgm.events.ConfigLoadEvent;
@@ -321,13 +319,6 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
     node.registerCommands(new SettingCommands());
     node.registerCommands(new ObserverCommands());
     node.registerCommands(new MapPoolCommands());
-
-    // TODO: Community commands
-    final ModerationCommands modCommands = new ModerationCommands(chat, getMatchManager());
-    node.registerCommands(modCommands);
-    registerEvents(modCommands);
-
-    node.registerCommands(new ReportCommands());
 
     new BukkitIntake(this, graph).register();
   }
