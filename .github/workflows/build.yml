@@ -1,9 +1,5 @@
 name: build
 on:
-  push:
-    branches-ignore:
-      - master
-      - beta
   pull_request:
   repository_dispatch:
 jobs:
@@ -16,5 +12,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: format
+      run: mvn com.coveo:fmt-maven-plugin:check
     - name: build
       run: mvn -U install
