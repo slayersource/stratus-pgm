@@ -7,8 +7,10 @@ import app.ashcon.intake.parametric.AbstractModule;
 import app.ashcon.intake.parametric.provider.EnumProvider;
 import java.io.File;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Handler;
@@ -24,7 +26,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
-import org.joda.time.Duration;
 import tc.oc.pgm.api.Datastore;
 import tc.oc.pgm.api.Modules;
 import tc.oc.pgm.api.PGM;
@@ -95,6 +96,7 @@ import tc.oc.pgm.tablist.MatchTabManager;
 import tc.oc.pgm.teams.TeamMatchModule;
 import tc.oc.util.FileUtils;
 import tc.oc.util.bukkit.chat.Audience;
+import tc.oc.util.bukkit.concurrent.BukkitExecutorService;
 import tc.oc.util.xml.InvalidXMLException;
 
 public class PGMPlugin extends JavaPlugin implements PGM, Listener {
@@ -106,6 +108,8 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
   private MatchTabManager matchTabManager;
   private MapOrder mapOrder;
   private PrefixRegistry prefixRegistry;
+  private ScheduledExecutorService executorService;
+  private ScheduledExecutorService asyncExecutorService;
 
   public PGMPlugin() {
     super();
@@ -144,6 +148,9 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
     } catch (Throwable t) {
       logger.log(Level.WARNING, "Failed to create or save configuration", t);
     }
+
+    executorService = new BukkitExecutorService(this, false);
+    asyncExecutorService = new BukkitExecutorService(this, true);
 
     try {
       datastore = new DatastoreImpl(new File(getDataFolder(), "pgm.db"));
@@ -194,7 +201,7 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
     }
 
     if (Config.AutoRestart.enabled()) {
-      getServer().getScheduler().runTaskTimer(this, new ShouldRestartTask(this), 0, 20 * 60);
+      asyncExecutorService.scheduleAtFixedRate(new ShouldRestartTask(this), 0, 1, TimeUnit.MINUTES);
     }
 
     registerListeners();
@@ -217,6 +224,9 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
         FileUtils.delete(dir);
       }
     }
+
+    executorService.shutdownNow();
+    asyncExecutorService.shutdownNow();
   }
 
   @Override
@@ -263,6 +273,16 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
   @Override
   public PrefixRegistry getPrefixRegistry() {
     return prefixRegistry;
+  }
+
+  @Override
+  public ScheduledExecutorService getExecutor() {
+    return executorService;
+  }
+
+  @Override
+  public ScheduledExecutorService getAsyncExecutor() {
+    return asyncExecutorService;
   }
 
   private class CommandModule extends AbstractModule {
@@ -358,10 +378,13 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
     @Override
     public void publish(LogRecord record) {
       final String message = format(record);
-      if (message == null) { // Escalate to plugin logger when unable to format the error
-        getLogger().log(record.getLevel(), record.getMessage(), record.getThrown());
-      } else {
+
+      if (message != null) {
         Bukkit.broadcast(message, Permissions.DEBUG);
+      }
+
+      if (message == null || message.contains("Unhandled")) {
+        getLogger().log(record.getLevel(), record.getMessage(), record.getThrown());
       }
     }
 
