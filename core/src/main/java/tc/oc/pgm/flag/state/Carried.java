@@ -1,8 +1,9 @@
 package tc.oc.pgm.flag.state;
 
-import com.google.common.base.Function;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -33,13 +34,12 @@ import tc.oc.pgm.scoreboard.SidebarMatchModule;
 import tc.oc.pgm.spawns.events.ParticipantDespawnEvent;
 import tc.oc.pgm.teams.TeamFactory;
 import tc.oc.pgm.teams.TeamMatchModule;
-import tc.oc.util.bukkit.component.Component;
-import tc.oc.util.bukkit.component.Components;
-import tc.oc.util.bukkit.component.types.PersonalizedText;
-import tc.oc.util.bukkit.component.types.PersonalizedTranslatable;
-import tc.oc.util.bukkit.named.NameStyle;
-import tc.oc.util.bukkit.nms.NMSHacks;
-import tc.oc.util.collection.IterableUtils;
+import tc.oc.pgm.util.component.Component;
+import tc.oc.pgm.util.component.Components;
+import tc.oc.pgm.util.component.types.PersonalizedText;
+import tc.oc.pgm.util.component.types.PersonalizedTranslatable;
+import tc.oc.pgm.util.named.NameStyle;
+import tc.oc.pgm.util.nms.NMSHacks;
 
 /** State of a flag when a player has picked it up and is wearing the banner on their head. */
 public class Carried extends Spawned implements Missing {
@@ -75,18 +75,17 @@ public class Carried extends Spawned implements Missing {
   public Iterable<Location> getProximityLocations(ParticipantState player) {
     if (isCarrying(player)) {
       final Query query = new PlayerStateQuery(player);
-      return IterableUtils.transfilter(
-          flag.getNets(),
-          new Function<Net, Location>() {
-            @Override
-            public Location apply(Net net) {
-              if (net.getCaptureFilter().query(query).isAllowed()) {
-                return net.getProximityLocation().toLocation(flag.getMatch().getWorld());
-              } else {
-                return null;
-              }
-            }
-          });
+      return flag.getNets().stream()
+          .flatMap(
+              net -> {
+                if (net.getCaptureFilter().query(query).isAllowed()) {
+                  return Stream.of(
+                      net.getProximityLocation().toLocation(flag.getMatch().getWorld()));
+                } else {
+                  return Stream.empty();
+                }
+              })
+          .collect(Collectors.toList());
     } else {
       return super.getProximityLocations(player);
     }

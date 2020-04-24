@@ -19,10 +19,10 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.Plugin;
 import tc.oc.pgm.api.Permissions;
-import tc.oc.util.ClassLogger;
-import tc.oc.util.bukkit.block.BlockVectorSet;
-import tc.oc.util.bukkit.nms.NMSHacks;
-import tc.oc.util.collection.DefaultMapAdapter;
+import tc.oc.pgm.util.ClassLogger;
+import tc.oc.pgm.util.block.BlockVectorSet;
+import tc.oc.pgm.util.collection.DefaultMapAdapter;
+import tc.oc.pgm.util.nms.NMSHacks;
 
 public class WorldProblemListener implements Listener {
 
@@ -31,7 +31,7 @@ public class WorldProblemListener implements Listener {
   private final Logger logger;
   private final SetMultimap<World, Chunk> repairedChunks = HashMultimap.create();
   private static final Map<World, BlockVectorSet> block36Locations =
-      new DefaultMapAdapter<>(new BlockVectorSet.Factory<>(), true);
+      new DefaultMapAdapter<>(world -> new BlockVectorSet(), true);
 
   public WorldProblemListener(Plugin plugin) {
     this.logger = ClassLogger.get(plugin.getLogger(), getClass());

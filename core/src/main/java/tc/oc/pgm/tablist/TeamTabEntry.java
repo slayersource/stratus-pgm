@@ -3,20 +3,12 @@ package tc.oc.pgm.tablist;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import tc.oc.pgm.teams.Team;
-import tc.oc.util.bukkit.component.ComponentUtils;
-import tc.oc.util.bukkit.component.types.PersonalizedText;
-import tc.oc.util.bukkit.tablist.DynamicTabEntry;
-import tc.oc.util.bukkit.tablist.TabView;
-import tc.oc.util.collection.DefaultProvider;
+import tc.oc.pgm.util.component.ComponentUtils;
+import tc.oc.pgm.util.component.types.PersonalizedText;
+import tc.oc.pgm.util.tablist.DynamicTabEntry;
+import tc.oc.pgm.util.tablist.TabView;
 
 public class TeamTabEntry extends DynamicTabEntry {
-
-  public static class Factory implements DefaultProvider<Team, TeamTabEntry> {
-    @Override
-    public TeamTabEntry get(Team key) {
-      return new TeamTabEntry(key);
-    }
-  }
 
   private final Team team;
 
