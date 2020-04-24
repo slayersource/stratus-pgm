@@ -29,21 +29,21 @@ import tc.oc.pgm.spawns.events.ParticipantSpawnEvent;
 import tc.oc.pgm.teams.Team;
 import tc.oc.pgm.teams.TeamMatchModule;
 import tc.oc.pgm.teams.events.TeamResizeEvent;
-import tc.oc.util.bukkit.tablist.PlayerTabEntry;
-import tc.oc.util.bukkit.tablist.TabManager;
-import tc.oc.util.bukkit.tablist.TabView;
-import tc.oc.util.collection.DefaultMapAdapter;
+import tc.oc.pgm.util.collection.DefaultMapAdapter;
+import tc.oc.pgm.util.tablist.PlayerTabEntry;
+import tc.oc.pgm.util.tablist.TabManager;
+import tc.oc.pgm.util.tablist.TabView;
 
 public class MatchTabManager extends TabManager implements Listener {
 
   private final Map<Team, TeamTabEntry> teamEntries =
-      new DefaultMapAdapter<>(new TeamTabEntry.Factory(), true);
+      new DefaultMapAdapter<>(TeamTabEntry::new, true);
   private final Map<Match, MapTabEntry> mapEntries =
-      new DefaultMapAdapter<>(new MapTabEntry.Factory(), true);
+      new DefaultMapAdapter<>(MapTabEntry::new, true);
   private final Map<Match, MatchFooterTabEntry> footerEntries =
-      new DefaultMapAdapter<>(new MatchFooterTabEntry.Factory(), true);
+      new DefaultMapAdapter<>(MatchFooterTabEntry::new, true);
   private final Map<Match, FreeForAllTabEntry> freeForAllEntries =
-      new DefaultMapAdapter<>(new FreeForAllTabEntry.Factory(), true);
+      new DefaultMapAdapter<>(FreeForAllTabEntry::new, true);
 
   private Future<?> renderTask;
   private PlayerOrderFactory playerOrderFactory;

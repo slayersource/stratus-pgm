@@ -3,20 +3,12 @@ package tc.oc.pgm.tablist;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import tc.oc.pgm.api.match.Match;
-import tc.oc.util.bukkit.component.types.PersonalizedText;
-import tc.oc.util.bukkit.component.types.PersonalizedTranslatable;
-import tc.oc.util.bukkit.tablist.DynamicTabEntry;
-import tc.oc.util.bukkit.tablist.TabView;
-import tc.oc.util.collection.DefaultProvider;
+import tc.oc.pgm.util.component.types.PersonalizedText;
+import tc.oc.pgm.util.component.types.PersonalizedTranslatable;
+import tc.oc.pgm.util.tablist.DynamicTabEntry;
+import tc.oc.pgm.util.tablist.TabView;
 
 public class FreeForAllTabEntry extends DynamicTabEntry {
-
-  public static class Factory implements DefaultProvider<Match, FreeForAllTabEntry> {
-    @Override
-    public FreeForAllTabEntry get(Match key) {
-      return new FreeForAllTabEntry(key);
-    }
-  }
 
   private final Match match;
 
