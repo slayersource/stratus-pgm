@@ -8,7 +8,7 @@
 
     <parent>
         <relativePath>../pom.xml</relativePath>
-        <version>0.8-SNAPSHOT</version>
+        <version>0.8-Stratus-SNAPSHOT</version>
         <groupId>tc.oc.pgm</groupId>
         <artifactId>PGM</artifactId>
     </parent>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>tc.oc.pgm</groupId>
             <artifactId>util</artifactId>
-            <version>0.8-SNAPSHOT</version>
+            <version>0.8-Stratus-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>
@@ -88,18 +88,6 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
                 <executions>
-                    <execution>
-                        <id>maps</id>
-                        <phase>generate-resources</phase>
-                        <configuration>
-                            <tasks>
-                                <zip basedir="../maps/" destfile="${basedir}/src/main/resources/maps.zip"/>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
                     <execution>
                         <id>jar</id>
                         <phase>package</phase>
