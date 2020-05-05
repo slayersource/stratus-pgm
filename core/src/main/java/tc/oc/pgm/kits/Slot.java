@@ -13,7 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import tc.oc.pgm.api.player.MatchPlayer;
-import tc.oc.pgm.util.item.Items;
+import tc.oc.pgm.util.inventory.InventoryUtils;
 
 /**
  * Derived from the names found in
@@ -70,7 +70,7 @@ public abstract class Slot {
 	public abstract Inventory getInventory(HumanEntity holder);
 
 	protected ItemStack addItem(HumanEntity holder, ItemStack stack) {
-		return Items.placeStack(getInventory(holder),
+		return InventoryUtils.placeStack(getInventory(holder),
 				ContiguousSet.create(getAutoIndexRange(), DiscreteDomain.integers()), stack);
 	}
 

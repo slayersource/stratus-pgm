@@ -10,7 +10,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import tc.oc.pgm.api.player.MatchPlayer;
-import tc.oc.pgm.util.item.Items;
+import tc.oc.pgm.util.inventory.InventoryUtils;
 
 public class ItemKit implements KitDefinition {
 
@@ -124,7 +124,7 @@ public class ItemKit implements KitDefinition {
               new ItemKitAddItemEvent(player, kitSlot.getIndex(), stack);
           player.getMatch().callEvent(itemKitAddItemEvent);
 
-          if (Items.isNothing(kitSlot.getItem(holder, itemKitAddItemEvent.getIndex()))) {
+          if (InventoryUtils.isNothing(kitSlot.getItem(holder, itemKitAddItemEvent.getIndex()))) {
             kitSlot.putItem(player, kitStack, itemKitAddItemEvent.getIndex());
           } else {
             displacedItems.add(kitStack);
