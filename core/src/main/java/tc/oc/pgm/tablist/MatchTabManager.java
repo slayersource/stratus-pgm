@@ -46,7 +46,7 @@ public class MatchTabManager extends TabManager implements Listener {
       new DefaultMapAdapter<>(FreeForAllTabEntry::new, true);
 
   private Future<?> renderTask;
-  private PlayerOrderFactory playerOrderFactory;
+  private PlayerOrderFactory playerOrderFactory = new DefaultPlayerOrderFactory();
 
   public MatchTabManager(Plugin plugin) {
     super(plugin, new MatchTabView.Factory(), null);
@@ -84,6 +84,9 @@ public class MatchTabManager extends TabManager implements Listener {
     if (view instanceof ListeningTabView) {
       plugin.getServer().getPluginManager().registerEvents((ListeningTabView) view, PGM.get());
     }
+    if (view instanceof MatchTabView) {
+      ((MatchTabView) view).setPlayerOrderFactory(playerOrderFactory);
+    }
     return view;
   }
 
@@ -107,7 +110,7 @@ public class MatchTabManager extends TabManager implements Listener {
     return this.footerEntries.get(match);
   }
   
-  protected PlayerOrderFactory getPlayerOrderFactory() {
+  public PlayerOrderFactory getPlayerOrderFactory() {
 	return playerOrderFactory;
   }
 

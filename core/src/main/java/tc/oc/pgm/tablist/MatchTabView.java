@@ -46,6 +46,7 @@ public class MatchTabView extends TabView implements ListeningTabView {
   private Match match;
   private @Nullable TeamMatchModule tmm;
   private MatchPlayer matchPlayer;
+  private PlayerOrderFactory playerOrderFactory;
   private PlayerOrder playerOrder;
   private TeamOrder teamOrder;
 
@@ -69,6 +70,10 @@ public class MatchTabView extends TabView implements ListeningTabView {
 
   protected MatchTabManager getManager() {
     return (MatchTabManager) this.manager;
+  }
+  
+  protected void setPlayerOrderFactory(PlayerOrderFactory factory) {
+    this.playerOrderFactory = factory;
   }
 
   private void renderTeam(
@@ -242,7 +247,7 @@ public class MatchTabView extends TabView implements ListeningTabView {
       this.match = event.getMatch();
       this.matchPlayer = event.getPlayer();
 
-      this.playerOrder = getManager().getPlayerOrderFactory().getOrder(this.matchPlayer);
+      this.playerOrder = playerOrderFactory.getOrder(this.matchPlayer);
       this.teamOrder = new TeamOrder(this.matchPlayer);
 
       this.observerPlayers.clear();
