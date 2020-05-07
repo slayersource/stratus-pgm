@@ -132,7 +132,7 @@ public final class PGMConfig implements Config {
     final String footer = config.getString("sidebar.footer");
     this.footer = footer == null || footer.isEmpty() ? null : parseComponent(footer);
 
-    this.communityMode = parseBoolean(config.getString("community.enabled", "true"));
+    this.communityMode = parseBoolean(config.getString("community.enabled", "false"));
 
     final ConfigurationSection section = config.getConfigurationSection("groups");
     this.groups = new ArrayList<>();

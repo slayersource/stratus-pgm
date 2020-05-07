@@ -442,6 +442,7 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
     node.registerCommands(new SettingCommands());
     node.registerCommands(new ObserverCommands());
     node.registerCommands(new MapPoolCommands());
+    node.registerCommands(new ListCommands(vanishManager));
 
     if (config.isCommunityMode()) {
       final ModerationCommands modCommands =
@@ -453,7 +454,6 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
       registerEvents((Listener) vanishManager);
 
       node.registerCommands(new ReportCommands(datastore));
-      node.registerCommands(new ListCommands(vanishManager));
     }
 
     new CommandRegistrar(graph).register();
