@@ -44,6 +44,7 @@ import tc.oc.pgm.api.Datastore;
 import tc.oc.pgm.api.Modules;
 import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.Permissions;
+import tc.oc.pgm.api.map.Contributor;
 import tc.oc.pgm.api.map.MapInfo;
 import tc.oc.pgm.api.map.MapLibrary;
 import tc.oc.pgm.api.map.MapOrder;
@@ -159,8 +160,10 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
     Modules.registerAll();
     Permissions.registerAll();
 
-    final Server server = getServer();
-    server.getConsoleSender().addAttachment(this, Permissions.ALL.getName(), true);
+    final CommandSender console = getServer().getConsoleSender();
+    console.addAttachment(this, Permissions.ALL.getName(), true);
+    console.addAttachment(this, Permissions.DEBUG, false);
+    console.recalculatePermissions();
 
     final Logger logger = getLogger();
     gameLogger = Logger.getLogger(logger.getName() + ".game");
@@ -183,16 +186,11 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
     }
 
     try {
-      datastore = new SQLDatastore(config.getDatabaseUri(), asyncExecutorService);
-    } catch (SQLException e1) {
-      logger.log(Level.SEVERE, "Unable to connect to database", e1);
-      try {
-        datastore = new SQLDatastore(null, asyncExecutorService);
-      } catch (SQLException e2) {
-        logger.log(Level.SEVERE, "Unable to connect to fallback database", e2);
-        getServer().getPluginManager().disablePlugin(this);
-        return;
-      }
+      datastore = new SQLDatastore(config.getDatabaseUri(), config.getDatabaseMaxConnections());
+    } catch (SQLException | TextException e) {
+      e.printStackTrace();
+      getServer().getPluginManager().disablePlugin(this);
+      return;
     }
 
     datastore = new CacheDatastore(datastore);
@@ -214,8 +212,26 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
       mapOrder = new MapPoolManager(logger, new File(config.getMapPoolFile()), datastore);
     }
 
+    // FIXME: To avoid startup lag, we "prefetch" usernames after map pools are loaded.
+    // Change MapPoolManager so it doesn't depend on all maps being loaded.
+    for (MapInfo map : Lists.newArrayList(mapLibrary.getMaps())) {
+      for (Contributor author : map.getAuthors()) {
+        author.getName();
+      }
+      for (Contributor contributor : map.getContributors()) {
+        contributor.getName();
+      }
+    }
+
     prefixRegistry =
         new PrefixRegistryImpl(config.getGroups().isEmpty() ? null : new ConfigPrefixProvider());
+
+    // Sometimes match folders need to be cleaned up if the server previously crashed
+    for (File dir : getServer().getWorldContainer().listFiles()) {
+      if (dir.isDirectory() && dir.getName().startsWith("match")) {
+        FileUtils.delete(dir);
+      }
+    }
 
     matchManager = new MatchManagerImpl(logger);
 
@@ -241,18 +257,9 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
     if (matchTabManager != null) matchTabManager.disable();
     if (matchManager != null) matchManager.getMatches().forEachRemaining(Match::unload);
     if (vanishManager != null) vanishManager.disable();
-
-    // Sometimes match folders need to be cleaned up due to de-syncs
-    for (File dir : getServer().getWorldContainer().listFiles()) {
-      if (dir.isDirectory() && dir.getName().startsWith("match")) {
-        FileUtils.delete(dir);
-      }
-    }
-
-    // FIXME: Datastore and ExecutorServices need to be properly shutdown
-    executorService.shutdown();
-    asyncExecutorService.shutdown();
-    // datastore.close();
+    if (executorService != null) executorService.shutdown();
+    if (asyncExecutorService != null) asyncExecutorService.shutdown();
+    if (datastore != null) datastore.close();
   }
 
   @Override
@@ -453,7 +460,7 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
       node.registerCommands(vanishManager);
       registerEvents((Listener) vanishManager);
 
-      node.registerCommands(new ReportCommands(datastore));
+      node.registerCommands(new ReportCommands());
     }
 
     new CommandRegistrar(graph).register();
@@ -487,11 +494,13 @@ public class PGMPlugin extends JavaPlugin implements PGM, Listener {
       final String message = format(record);
 
       if (message != null) {
+        getLogger().log(Level.INFO, ChatColor.stripColor(message));
         Bukkit.broadcast(message, Permissions.DEBUG);
       }
 
       if (message == null || message.contains("Unhandled")) {
-        getLogger().log(record.getLevel(), record.getMessage(), record.getThrown());
+        getLogger()
+            .log(record.getLevel(), record.getThrown().getMessage(), record.getThrown().getCause());
       }
     }
 

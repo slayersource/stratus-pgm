@@ -40,6 +40,7 @@ public final class PGMConfig implements Config {
 
   // database-uri
   private final String databaseUri;
+  private final int databaseMaxConnections;
 
   // motd
   private final String motd;
@@ -93,7 +94,19 @@ public final class PGMConfig implements Config {
 
     this.logLevel = parseLogLevel(config.getString("log-level", "info"));
 
-    this.databaseUri = config.getString("database-uri");
+    final String databaseUri = config.getString("database-uri");
+    this.databaseUri =
+        databaseUri == null || databaseUri.isEmpty()
+            ? new File(dataFolder, "pgm.db")
+                .getAbsoluteFile()
+                .toURI()
+                .toString()
+                .replaceFirst("^file", "sqlite")
+            : databaseUri;
+    this.databaseMaxConnections =
+        this.databaseUri.startsWith("sqlite:")
+            ? 1 // SQLite is single threaded by nature
+            : Math.min(5, Runtime.getRuntime().availableProcessors());
 
     final String motd = config.getString("motd");
     this.motd = motd == null || motd.isEmpty() ? null : parseComponentLegacy(motd);
@@ -322,6 +335,11 @@ public final class PGMConfig implements Config {
   @Override
   public String getDatabaseUri() {
     return databaseUri;
+  }
+
+  @Override
+  public int getDatabaseMaxConnections() {
+    return databaseMaxConnections;
   }
 
   @Override
