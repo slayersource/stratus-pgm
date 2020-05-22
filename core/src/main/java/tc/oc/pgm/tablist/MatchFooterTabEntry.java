@@ -7,6 +7,9 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import tc.oc.pgm.api.match.Match;
 import tc.oc.pgm.api.match.MatchScope;
+import tc.oc.pgm.api.player.MatchPlayer;
+import tc.oc.pgm.api.setting.SettingKey;
+import tc.oc.pgm.api.setting.SettingValue;
 import tc.oc.pgm.util.TimeUtils;
 import tc.oc.pgm.util.component.Component;
 import tc.oc.pgm.util.component.types.PersonalizedText;
@@ -47,7 +50,6 @@ public class MatchFooterTabEntry extends DynamicTabEntry {
   @Override
   public BaseComponent getContent(TabView view) {
     Component content = new PersonalizedText(ChatColor.DARK_GRAY);
-
     content.extra(
         new PersonalizedText(
             TextTranslations.translate("match.info.time", view.getViewer()) + ": ", ChatColor.GRAY),
