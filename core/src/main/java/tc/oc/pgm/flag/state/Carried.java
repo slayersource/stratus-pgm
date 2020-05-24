@@ -264,10 +264,6 @@ public class Carried extends Spawned implements Missing {
     this.flag.getMatch().callEvent(event);
   }
 
-  public MatchPlayer getCarrier() {
-    return carrier;
-  }
-
   protected boolean isCarrier(MatchPlayer player) {
     return this.carrier == player;
   }
