@@ -42,6 +42,7 @@ import tc.oc.pgm.filters.FilterModule;
 import tc.oc.pgm.fireworks.FireworkMatchModule;
 import tc.oc.pgm.flag.FlagMatchModule;
 import tc.oc.pgm.flag.FlagModule;
+import tc.oc.pgm.flag.LegacyFlagBeamMatchModule;
 import tc.oc.pgm.gamerules.GameRulesMatchModule;
 import tc.oc.pgm.gamerules.GameRulesModule;
 import tc.oc.pgm.goals.GoalMatchModule;
@@ -155,6 +156,7 @@ public interface Modules {
     register(ObserverToolsMatchModule.class, new ObserverToolsMatchModule.Factory());
     register(FireworkMatchModule.class, FireworkMatchModule::new);
     register(StatsMatchModule.class, StatsMatchModule::new);
+    register(LegacyFlagBeamMatchModule.class, LegacyFlagBeamMatchModule::new);
 
     // Community MatchModules
 
