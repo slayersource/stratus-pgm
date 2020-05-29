@@ -19,6 +19,7 @@ import tc.oc.pgm.events.PlayerLeaveMatchEvent;
 import tc.oc.pgm.flag.event.FlagStateChangeEvent;
 import tc.oc.pgm.flag.state.Carried;
 import tc.oc.pgm.flag.state.Spawned;
+import tc.oc.pgm.util.bukkit.ViaUtils;
 import tc.oc.pgm.util.inventory.ItemBuilder;
 import tc.oc.pgm.util.nms.NMSHacks;
 
@@ -37,7 +38,7 @@ import static java.util.stream.IntStream.range;
 public class LegacyFlagBeamMatchModule implements MatchModule, Listener {
 
     private static int UPDATE_DELAY = 0; //When to start updating the flags
-    private static int UPDATE_FREQUENCY = 1; //How often to update the flags
+    private static int UPDATE_FREQUENCY = 50; //How often to update the flags
 
     private UpdateTask task;
     private final Match match;
@@ -62,6 +63,10 @@ public class LegacyFlagBeamMatchModule implements MatchModule, Listener {
     }
 
     protected void trackFlag(Flag flag, MatchPlayer player) {
+        if (player.getProtocolVersion() >= ViaUtils.VERSION_1_8) {
+            return;
+        }
+
         Map<Flag, Beam> flags = beams.get(player);
         if (flags == null) {
             flags = new HashMap<>();
@@ -81,6 +86,10 @@ public class LegacyFlagBeamMatchModule implements MatchModule, Listener {
     }
 
     protected void untrackFlag(Flag flag, MatchPlayer player) {
+        if (player.getProtocolVersion() >= ViaUtils.VERSION_1_8) {
+            return;
+        }
+
         if (beams.containsKey(player)) {
             Beam beam = beams.get(player).get(flag);
             if (beam != null) {
@@ -133,7 +142,7 @@ public class LegacyFlagBeamMatchModule implements MatchModule, Listener {
                     match
                             .getExecutor(MatchScope.RUNNING)
                             .scheduleAtFixedRate(
-                                    this, UPDATE_DELAY, UPDATE_FREQUENCY, TimeUnit.SECONDS);
+                                    this, UPDATE_DELAY, UPDATE_FREQUENCY, TimeUnit.MILLISECONDS);
         }
 
         public void stop() {
@@ -199,6 +208,7 @@ public class LegacyFlagBeamMatchModule implements MatchModule, Listener {
             if(carrier.isPresent()) {
                 base.mount(bukkit, carrier.get());
             } else {
+                base.entity().eject();
                 location().ifPresent(l -> base.teleport(bukkit, l));
             }
         }
