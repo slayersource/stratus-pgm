@@ -44,15 +44,12 @@ import tc.oc.pgm.api.match.MatchManager;
 import tc.oc.pgm.api.match.event.MatchFinishEvent;
 import tc.oc.pgm.api.match.event.MatchLoadEvent;
 import tc.oc.pgm.api.match.event.MatchStartEvent;
-import tc.oc.pgm.api.party.Competitor;
 import tc.oc.pgm.api.player.MatchPlayer;
 import tc.oc.pgm.api.player.VanishManager;
 import tc.oc.pgm.api.setting.SettingKey;
 import tc.oc.pgm.api.setting.SettingValue;
-import tc.oc.pgm.commands.MatchCommands;
 import tc.oc.pgm.events.MapPoolAdjustEvent;
 import tc.oc.pgm.events.PlayerParticipationStopEvent;
-import tc.oc.pgm.events.PlayerPartyChangeEvent;
 import tc.oc.pgm.gamerules.GameRulesMatchModule;
 import tc.oc.pgm.modules.TimeLockModule;
 import tc.oc.pgm.util.UsernameFormatUtils;
@@ -189,6 +186,11 @@ public class PGMListener implements Listener {
   }
 
   public static void announceJoinOrLeave(MatchPlayer player, boolean join, boolean staffOnly) {
+    announceJoinOrLeave(player, join, staffOnly, false);
+  }
+
+  public static void announceJoinOrLeave(
+      MatchPlayer player, boolean join, boolean staffOnly, boolean force) {
     checkNotNull(player);
     Collection<MatchPlayer> viewers =
         player.getMatch().getPlayers().stream()
@@ -201,7 +203,8 @@ public class PGMListener implements Listener {
         continue; // Skip staff during fake broadcast
 
       final String key =
-          (join ? "misc.join" : "misc.leave") + (staffOnly && player.isVanished() ? ".quiet" : "");
+          (join ? "misc.join" : "misc.leave")
+              + (staffOnly && (player.isVanished() || force) ? ".quiet" : "");
 
       SettingValue option = viewer.getSettings().getValue(SettingKey.JOIN);
       if (option.equals(SettingValue.JOIN_ON)) {
@@ -214,13 +217,6 @@ public class PGMListener implements Listener {
                 ? ChatDispatcher.ADMIN_CHAT_PREFIX.append(component.color(TextColor.YELLOW))
                 : component.color(TextColor.YELLOW));
       }
-    }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void matchInfoOnParticipate(final PlayerPartyChangeEvent event) {
-    if (event.getNewParty() instanceof Competitor) {
-      MatchCommands.matchInfo(event.getPlayer().getBukkit(), event.getPlayer(), event.getMatch());
     }
   }
 
@@ -299,15 +295,13 @@ public class PGMListener implements Listener {
   @EventHandler
   public void freezeWorld(final BlockTransformEvent event) {
     Match match = this.mm.getMatch(event.getWorld());
-    if (match != null && match.isFinished()) {
-      event.setCancelled(true);
-    }
+    if (match == null || match.isFinished()) event.setCancelled(true);
   }
 
   @EventHandler
   public void freezeVehicle(final VehicleUpdateEvent event) {
     Match match = this.mm.getMatch(event.getWorld());
-    if (match != null && match.isFinished()) {
+    if (match == null || match.isFinished()) {
       event.getVehicle().setVelocity(new Vector());
     }
   }
