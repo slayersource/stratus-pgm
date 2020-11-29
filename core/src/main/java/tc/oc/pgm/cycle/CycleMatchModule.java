@@ -36,6 +36,7 @@ public class CycleMatchModule implements MatchModule, Listener {
     if (duration.isNegative()) duration = Duration.ofSeconds(30);
     match.finish();
     match.getCountdown().start(new CycleCountdown(match), duration);
+    System.out.println("Match Finish F: " + match.getId());
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -43,9 +44,9 @@ public class CycleMatchModule implements MatchModule, Listener {
     if (event.wasParticipating()
         && match.isRunning()
         && match.getParticipants().size() < PGM.get().getConfiguration().getMinimumPlayers()) {
-      match.getLogger().info("Cycling due to empty match");
-      match.finish();
-      startCountdown(null);
+      match.getLogger().info("Match Finish D: Cycling due to empty match " + match.getId());
+      //      match.finish();
+      //      startCountdown(null);
     }
   }
 
