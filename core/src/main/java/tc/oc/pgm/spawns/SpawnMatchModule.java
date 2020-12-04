@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import javax.annotation.Nullable;
+import net.kyori.text.TranslatableComponent;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -20,6 +21,9 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
+import org.bukkit.event.player.PlayerAttackEntityEvent;
+import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerInitialSpawnEvent;
 import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.filter.Filter;
 import tc.oc.pgm.api.filter.query.Query;
@@ -43,7 +47,6 @@ import tc.oc.pgm.spawns.states.Joining;
 import tc.oc.pgm.spawns.states.Observing;
 import tc.oc.pgm.spawns.states.State;
 import tc.oc.pgm.util.event.PlayerItemTransferEvent;
-import tc.oc.pgm.util.event.player.PlayerAttackEntityEvent;
 
 @ListenerScope(MatchScope.LOADED)
 public class SpawnMatchModule implements MatchModule, Listener, Tickable {
@@ -303,6 +306,16 @@ public class SpawnMatchModule implements MatchModule, Listener, Tickable {
       if (!spawn.attributes.persistent) {
         unique.remove(competitor);
       }
+    }
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void onBedEnter(final PlayerBedEnterEvent event) {
+    // Only block bed enter when bed spawns are disabled
+    if (match.getWorld().equals(event.getWorld()) && !getRespawnOptions().bedSpawn) {
+      event.setCancelled(true);
+      MatchPlayer who = match.getPlayer(event.getPlayer());
+      if (who != null) who.sendWarning(TranslatableComponent.of("match.disabled.bed"));
     }
   }
 
