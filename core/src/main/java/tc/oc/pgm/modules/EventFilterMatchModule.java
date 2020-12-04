@@ -26,7 +26,6 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerBedEnterEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -152,16 +151,6 @@ public class EventFilterMatchModule implements MatchModule, Listener {
   @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
   public void onWeatherChange(final WeatherChangeEvent event) {
     cancelAlways(event, event.getWorld());
-  }
-
-  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-  public void onBedEnter(final PlayerBedEnterEvent event) {
-    cancel(
-        event,
-        true,
-        event.getPlayer().getWorld(),
-        match.getPlayer(event.getPlayer()),
-        TranslatableComponent.of("match.disabled.bed"));
   }
 
   // ---------------------------

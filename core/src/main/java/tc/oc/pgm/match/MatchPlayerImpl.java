@@ -291,9 +291,6 @@ public class MatchPlayerImpl implements MatchPlayer, PlayerAudience, Comparable<
     }
 
     NMSHacks.setAbsorption(bukkit, 0);
-
-    // we only reset bed spawn here so people don't have to see annoying messages when they respawn
-    bukkit.setBedSpawnLocation(null);
   }
 
   @Override

@@ -58,6 +58,7 @@ public class Observing extends State {
     if (reset) player.reset();
     player.setDead(false);
     player.resetGamemode();
+    bukkit.setBedSpawnLocation(null);
 
     Spawn spawn = smm.getDefaultSpawn();
 
