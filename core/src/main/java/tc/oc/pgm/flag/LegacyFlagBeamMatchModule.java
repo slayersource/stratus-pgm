@@ -73,12 +73,12 @@ public class LegacyFlagBeamMatchModule implements MatchModule, Listener {
   @Override
   public void enable() {
     match
-        .getExecutor(MatchScope.RUNNING)
-        .scheduleAtFixedRate(
-            () -> beams.values().forEach(Beam::update),
-            UPDATE_DELAY,
-            UPDATE_FREQUENCY,
-            TimeUnit.MILLISECONDS);
+            .getExecutor(MatchScope.RUNNING)
+            .scheduleAtFixedRate(
+                    () -> beams.values().forEach(Beam::update),
+                    UPDATE_DELAY,
+                    UPDATE_FREQUENCY,
+                    TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -89,8 +89,8 @@ public class LegacyFlagBeamMatchModule implements MatchModule, Listener {
 
   private void showLater(MatchPlayer player) {
     match
-        .getExecutor(MatchScope.LOADED)
-        .schedule(() -> beams().forEach(b -> b.show(player)), 50, TimeUnit.MILLISECONDS);
+            .getExecutor(MatchScope.LOADED)
+            .schedule(() -> beams().forEach(b -> b.show(player)), 50, TimeUnit.MILLISECONDS);
   }
 
   @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -117,7 +117,7 @@ public class LegacyFlagBeamMatchModule implements MatchModule, Listener {
     Beam beam = beams.get(event.getFlag());
 
     boolean wasSpawned = event.getOldState() instanceof Spawned,
-        isSpawned = event.getNewState() instanceof Spawned;
+            isSpawned = event.getNewState() instanceof Spawned;
 
     if (wasSpawned && !isSpawned) beam.hide();
     else if (!wasSpawned && isSpawned) beam.show();
@@ -143,19 +143,19 @@ public class LegacyFlagBeamMatchModule implements MatchModule, Listener {
 
       ItemStack wool = new ItemBuilder().material(Material.WOOL).color(flag.getDyeColor()).build();
       this.base = new NMSHacks.FakeArmorStand(match.getWorld(), wool);
-      this.legacyBase = new NMSHacks.FakeWitherSkull(match.getWorld());
+      this.legacyBase = new NMSHacks.FakeWitherSkull(match.getWorld(), false);
       this.segments =
-          range(0, 64) // ~100 blocks is the height which the particles appear to be reasonably
-              // visible (similar amount to amount closest to the flag), we limit this to 64 blocks
-              // to reduce load on the client
-              .mapToObj(i -> new NMSHacks.FakeArmorStand(match.getWorld(), wool))
-              .collect(Collectors.toList());
+              range(0, 64) // ~100 blocks is the height which the particles appear to be reasonably
+                      // visible (similar amount to amount closest to the flag), we limit this to 64 blocks
+                      // to reduce load on the client
+                      .mapToObj(i -> new NMSHacks.FakeArmorStand(match.getWorld(), wool))
+                      .collect(Collectors.toList());
     }
 
     Optional<MatchPlayer> carrier() {
       return flag.getState() instanceof Carried
-          ? Optional.of(((Carried) flag.getState()).getCarrier())
-          : Optional.empty();
+              ? Optional.of(((Carried) flag.getState()).getCarrier())
+              : Optional.empty();
     }
 
     Optional<Location> location() {
@@ -188,7 +188,7 @@ public class LegacyFlagBeamMatchModule implements MatchModule, Listener {
       spawn(bukkit, base(player));
       segments.forEach(segment -> spawn(bukkit, segment));
       range(1, segments.size())
-          .forEachOrdered(i -> segments.get(i - 1).ride(bukkit, segments.get(i).entity()));
+              .forEachOrdered(i -> segments.get(i - 1).ride(bukkit, segments.get(i).entity()));
       base(player).ride(bukkit, segments.get(0).entity());
 
       update(player);
@@ -204,7 +204,7 @@ public class LegacyFlagBeamMatchModule implements MatchModule, Listener {
 
     public void update(MatchPlayer player) {
       Location loc =
-          carrier().map(c -> c.getBukkit().getLocation()).orElseGet(() -> location().orElse(null));
+              carrier().map(c -> c.getBukkit().getLocation()).orElseGet(() -> location().orElse(null));
       if (loc == null) return;
       loc = loc.clone().add(0, 2.75, 0);
       if (loc.getY() < -64) loc.setY(-64);
