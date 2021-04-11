@@ -6,15 +6,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.SetMultimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-<<<<<<< HEAD
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-=======
 import java.time.Duration;
->>>>>>> Unification
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;

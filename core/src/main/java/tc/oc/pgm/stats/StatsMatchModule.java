@@ -239,57 +239,58 @@ public class StatsMatchModule implements MatchModule, Listener {
       allDamage.put(playerUUID, playerStats.getDamageDone());
     }
 
-    List<Component> best = new ArrayList<>();
-    if (event.isShowBest()) {
-      best.add(getMessage("match.stats.kills", sortStats(allKills), NamedTextColor.GREEN));
-      best.add(getMessage("match.stats.killstreak", sortStats(allStreaks), NamedTextColor.GREEN));
-      best.add(getMessage("match.stats.deaths", sortStats(allDeaths), NamedTextColor.RED));
+    // Sort and create messages for the best stats
 
-      Map.Entry<UUID, Integer> bestBowshot = sortStats(allBowshots);
-      if (bestBowshot.getValue() > 1)
-        best.add(getMessage("match.stats.bowshot", bestBowshot, NamedTextColor.YELLOW));
+    // kills/deaths
+    Component killMessage =
+        getMessage("match.stats.kills", sortStats(allKills), NamedTextColor.GREEN);
+    Component killstreakMessage =
+        getMessage("match.stats.killstreak", sortStats(allStreaks), NamedTextColor.GREEN);
+    Component deathMessage =
+        getMessage("match.stats.deaths", sortStats(allDeaths), NamedTextColor.RED);
 
-      if (verboseStats) {
-        Map.Entry<UUID, Double> bestDamage = sortStatsDouble(allDamage);
-        best.add(
-            translatable(
-                "match.stats.damage",
-                playerName(bestDamage.getKey()),
-                damageComponent(bestDamage.getValue(), NamedTextColor.GREEN)));
-      }
-    }
+    // bow
+    Map.Entry<UUID, Integer> bestBowshot = sortStats(allBowshots);
+    if (bestBowshot.getValue() == 1)
+      bestBowshot.setValue(2); // Avoids translating "1 block" vs "n blocks"
+    Component bowshotMessage =
+        getMessage("match.stats.bowshot", bestBowshot, NamedTextColor.YELLOW);
 
-    for (MatchPlayer viewer : match.getPlayers()) {
-      if (viewer.getSettings().getValue(SettingKey.STATS) == SettingValue.STATS_OFF) continue;
+    // damage
+    Map.Entry<UUID, Double> bestDamage = sortStatsDouble(allDamage);
+    Component damageMessage =
+        translatable(
+            "match.stats.damage",
+            playerName(bestDamage.getKey()),
+            damageComponent(bestDamage.getValue(), NamedTextColor.GREEN));
 
-      viewer.sendMessage(
-          TextFormatter.horizontalLineHeading(
-              viewer.getBukkit(),
-              translatable("match.stats.title", NamedTextColor.YELLOW),
-              NamedTextColor.WHITE));
+    // Send everything created to all players in the match
+    // (stat messages and items)
+    match
+        .getExecutor(MatchScope.LOADED)
+        .schedule(
+            () -> {
+              for (MatchPlayer viewer : match.getPlayers()) {
+                // Does this player care about stats?
+                if (viewer.getSettings().getValue(SettingKey.STATS) == SettingValue.STATS_OFF)
+                  continue;
 
-      best.forEach(viewer::sendMessage);
-
-      PlayerStats stats = allPlayerStats.get(viewer.getId());
-      if (event.isShowOwn() && stats != null) {
-        Component ksHover =
-            translatable(
-                "match.stats.killstreak.concise",
-                numberComponent(stats.getKillstreak(), NamedTextColor.GREEN));
-
-        viewer.sendMessage(
-            translatable(
-                "match.stats.own",
-                numberComponent(stats.getKills(), NamedTextColor.GREEN),
-                numberComponent(stats.getMaxKillstreak(), NamedTextColor.GREEN)
-                    .hoverEvent(showText(ksHover)),
-                numberComponent(stats.getDeaths(), NamedTextColor.RED),
-                numberComponent(stats.getKD(), NamedTextColor.GREEN),
-                damageComponent(stats.getDamageDone(), NamedTextColor.GREEN)));
-      }
-
-      giveVerboseStatsItem(viewer, false);
-    }
+                //                viewer.sendMessage(
+                //                    TextFormatter.horizontalLineHeading(
+                //                        viewer.getBukkit(),
+                //                        translatable("match.stats.title", NamedTextColor.YELLOW),
+                //                        NamedTextColor.WHITE));
+                //                viewer.sendMessage(killMessage);
+                //                viewer.sendMessage(killstreakMessage);
+                //                viewer.sendMessage(deathMessage);
+                //                if (bestBowshot.getValue() != 0)
+                // viewer.sendMessage(bowshotMessage);
+                //                if (verboseStats) viewer.sendMessage(damageMessage);
+                giveVerboseStatsItem(viewer, false);
+              }
+            },
+            5 + 1, // NOTE: This is 1 second after the votebook appears
+            TimeUnit.SECONDS);
   }
 
   @EventHandler
