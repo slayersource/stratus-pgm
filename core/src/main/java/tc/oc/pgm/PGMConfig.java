@@ -66,7 +66,6 @@ public final class PGMConfig implements Config {
   // restart.*
   private final Duration uptimeLimit;
   private final long matchLimit;
-  private final Duration restartTime;
 
   // gameplay.*
   private final boolean woolRefill;
@@ -161,11 +160,10 @@ public final class PGMConfig implements Config {
     this.startTime = parseDuration(config.getString("countdown.start", "30s"));
     this.huddleTime = parseDuration(config.getString("countdown.huddle", "0s"));
     this.cycleTime = parseDuration(config.getString("countdown.cycle", "30s"));
-    this.restartTime = parseDuration(config.getString("countdown.restart", "30s"));
+    this.restartTime = parseDuration(config.getString("countdown.restart", "15s"));
 
     this.uptimeLimit = parseDuration(config.getString("restart.uptime", "1d"));
     this.matchLimit = parseInteger(config.getString("restart.match-limit", "30"));
-    this.restartTime = parseDuration(config.getString("restart.time", "15"));
 
     this.woolRefill = parseBoolean(config.getString("gameplay.refill-wool", "true"));
     this.griefScore =
@@ -494,10 +492,6 @@ public final class PGMConfig implements Config {
     return matchLimit;
   }
 
-  @Override
-  public Duration getRestartTime() {
-    return restartTime;
-  }
 
   @Override
   public long getMinimumPlayers() {
